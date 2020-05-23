@@ -11,7 +11,7 @@ setuptools.setup(
     description="a shapely extension package providing magic function",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/pypa/sampleproject",
+    url="https://github.com/pyeprog/shapely_ext",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
