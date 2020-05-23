@@ -19,4 +19,9 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     python_requires='>=3.6',
+    install_requires=[
+        "Shapely>=1.7.0",
+        "scipy>=1.4.1",
+        "numpy>=1.18.4"
+    ]
 )
