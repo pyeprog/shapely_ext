@@ -22,7 +22,7 @@ def interpolate_coords_by_len(coord1: Tuple[float, float],
     return result
 
 
-def interpolate(geometry: BaseGeometry, gap: float, simplify_radius: float = 1e-6) -> BaseGeometry:
+def interpolate(geometry: BaseGeometry, gap: float, simplify_distance: float = 1e-6) -> BaseGeometry:
     def interpolate_coords(coords):
         new_coords: List[Tuple[float, float]] = []
         for i in range(len(coords) - 2):
@@ -33,7 +33,7 @@ def interpolate(geometry: BaseGeometry, gap: float, simplify_radius: float = 1e-
     if isinstance(geometry, (Point, MultiPoint)):
         return geometry
     elif isinstance(geometry, (Polygon, LineString, LinearRing)):
-        geometry_simplified = geometry.simplify(simplify_radius)
+        geometry_simplified = geometry.simplify(simplify_distance)
         if isinstance(geometry, Polygon):
             exterior_coords = list(geometry_simplified.exterior.coords)
             interior_coords_list = [list(interior.coords) for interior in geometry_simplified.interiors]
