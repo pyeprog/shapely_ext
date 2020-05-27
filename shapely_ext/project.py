@@ -18,7 +18,7 @@ class Projector:
             max_projecting_length: float = 1e6,
             eps: float = 1e-6,
     ):
-        self._geom = geom
+        self._geom = geom.simplify(eps)
         self._projecting_vector = projecting_vector
         self._max_projecting_length = max_projecting_length
         self._eps = eps
@@ -69,7 +69,7 @@ class Projector:
 
     def _construct_by_coords_according_to(self, ref_geom, coords):
         if isinstance(ref_geom, Polygon):
-            return Polygon(shell=coords, holes=ref_geom.interiors)
+            return Polygon(shell=coords, holes=ref_geom.interiors).buffer(0)
         return type(ref_geom)(coords)
 
     def get_projection_point(self, start_point: Point, other_geom: BaseGeometry, projecting_vector: Vector2D):

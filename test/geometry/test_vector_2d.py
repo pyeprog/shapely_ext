@@ -2,10 +2,10 @@ import math
 from unittest import TestCase
 
 from shapely.geometry import box
-from shapely.geometry.base import BaseGeometry
 
 from shapely_ext.geometry.vector_2d import Vector2D
 from test.constant import MATH_EPS
+from test.util import is_geom_equal
 
 
 class TestVector2D(TestCase):
@@ -87,19 +87,15 @@ class TestVector2D(TestCase):
         self.assertEqual(0, vector3.dot(vector4))
         self.assertEqual(0, vector4.dot(vector1))
 
-    @staticmethod
-    def _is_geom_equal(geom1: BaseGeometry, geom2: BaseGeometry):
-        return geom1.symmetric_difference(geom2).area < MATH_EPS
-
     def test_apply(self):
         polygon = box(0, 0, 1, 1)
         vector = Vector2D(1, 1)
         expected = box(1, 1, 2, 2)
-        self.assertTrue(self._is_geom_equal(expected, vector.apply(polygon)))
+        self.assertTrue(is_geom_equal(expected, vector.apply(polygon)))
 
         vector = Vector2D(1, 0)
         expected = box(1, 0, 2, 1)
-        self.assertTrue(self._is_geom_equal(expected, vector.apply(polygon)))
+        self.assertTrue(is_geom_equal(expected, vector.apply(polygon)))
 
     def test_plus(self):
         vector1 = Vector2D(1, 3.14)
