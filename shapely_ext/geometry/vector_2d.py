@@ -94,3 +94,6 @@ class Vector2D:
         if length == 0:
             raise ValueError('x and y cannot be both 0')
         return Vector2D(self.x / length, self.y / length)
+
+    def reverse(self):
+        return Vector2D(-self.x, -self.y)

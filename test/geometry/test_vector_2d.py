@@ -97,6 +97,10 @@ class TestVector2D(TestCase):
         expected = box(1, 1, 2, 2)
         self.assertTrue(self._is_geom_equal(expected, vector.apply(polygon)))
 
+        vector = Vector2D(1, 0)
+        expected = box(1, 0, 2, 1)
+        self.assertTrue(self._is_geom_equal(expected, vector.apply(polygon)))
+
     def test_plus(self):
         vector1 = Vector2D(1, 3.14)
         vector2 = Vector2D(-1, -2)
@@ -132,3 +136,8 @@ class TestVector2D(TestCase):
 
         vector3 = Vector2D(2, 0)
         self.assertEqual(Vector2D(1, 0), vector3.unit())
+
+    def test_reverse(self):
+        vector1 = Vector2D(2, 1)
+        reversed_vec = vector1.reverse()
+        self.assertEqual(Vector2D(-2, -1), reversed_vec)

@@ -13,7 +13,7 @@ class Projector:
             self,
             geom: Union[Polygon, LineString, LinearRing, Point],
             projecting_vector: Vector2D,
-            max_projecting_length: float = 1e-6,
+            max_projecting_length: float = 1e6,
             eps: float = 1e-6,
     ):
         self._geom = geom
@@ -36,15 +36,15 @@ class Projector:
 
     def project_onto(self, other_geom: BaseGeometry):
         if isinstance(self._geom, Point):
-            return self.get_projection_point(self._geom, other_geom)
+            return self.get_projection_point(self._geom, other_geom, self._projecting_vector)
 
-        geom, other_geom = self._prepare_geoms(self._geom, other_geom)
+        geom = self._insert_other_geom_projections_into_geom(other_geom, self._projecting_vector.reverse(), self._geom)
 
         points = [Point(coord) for coord in self._get_coords(geom)]
         optional_projecting_points: List[Optional[Point]] = []
         for point in points:
             if self.is_facing_point(point, other_geom):
-                projecting_point = self.get_projection_point(point, other_geom)
+                projecting_point = self.get_projection_point(point, other_geom, self._projecting_vector)
                 optional_projecting_points.append(projecting_point)
             else:
                 optional_projecting_points.append(None)
@@ -59,26 +59,23 @@ class Projector:
             return projecting_points[0]
         return None
 
-    def _prepare_geoms(self, geom: BaseGeometry, other_geom: BaseGeometry):
-        # insert extra coords for upcoming projection calculation
-        geom_coords = self._get_coords(geom)
+    def _insert_other_geom_projections_into_geom(self, other_geom, projecting_vector, geom):
         other_geom_coords = self._get_coords(other_geom)
-        geom_coords_copy = list(geom_coords)
-        other_geom_coords_copy = list(geom_coords)
-        for coord in geom_coords:
-            projection_point = self.get_projection_point(Point(coord), other_geom)
+        geom_coords = self._get_coords(geom)
+        geom_coords_copy = deepcopy(geom_coords)
+        for coord_of_other in other_geom_coords:
+            projection_point = self.get_projection_point(Point(coord_of_other), geom, projecting_vector)
             if projection_point:
-                self._insert_into_coords(other_geom_coords_copy, coord)
-        for coord in other_geom_coords:
-            projection_point = self.get_projection_point(Point(coord), geom)
-            if projection_point:
-                self._insert_into_coords(geom_coords_copy, coord)
-        geom_copy = type(geom)(geom_coords_copy)
-        other_geom_copy = type(other_geom)(other_geom_coords_copy)
-        return geom_copy, other_geom_copy
+                self._insert_into_coords(geom_coords_copy, projection_point)
+        return self._construct_by_coords_according_to(geom, geom_coords_copy)
 
-    def get_projection_point(self, start_point: Point, other_geom: BaseGeometry):
-        ray_reaching_point = self._projecting_vector.multiply(self._max_projecting_length).apply(start_point)
+    def _construct_by_coords_according_to(self, ref_geom, coords):
+        if isinstance(ref_geom, Polygon):
+            return Polygon(shell=coords, holes=ref_geom.interiors)
+        return type(ref_geom)(coords)
+
+    def get_projection_point(self, start_point: Point, other_geom: BaseGeometry, projecting_vector: Vector2D):
+        ray_reaching_point = projecting_vector.multiply(self._max_projecting_length).apply(start_point)
         ray = LineString([start_point, ray_reaching_point])
         ray_intersection = ray.intersection(other_geom)
         if ray_intersection.is_empty:
@@ -103,13 +100,13 @@ class Projector:
         return projecting_points
 
     @staticmethod
-    def _insert_into_coords(coords: List[Tuple[float, float]], coord: Tuple[float, float]):
+    def _insert_into_coords(coords: List[Tuple[float, float]], coord: Tuple[float, float]) -> None:
         polygon = Polygon(coords)
         if not polygon.is_valid:
             raise ValueError("coords is not valid")
         point = Point(coord)
         for i in range(len(coords)):
-            line = LineString([coords[i - 1], coords[i]])
-            if line.intersects(point):
+            buffered_line = LineString([coords[i - 1], coords[i]]).buffer(1e-6)
+            if buffered_line.intersects(point):
                 coords.insert(i, coord)
-        return coords
+                break
