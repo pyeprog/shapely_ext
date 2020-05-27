@@ -5,6 +5,7 @@ from typing import Union, Optional, List, Tuple
 from shapely.geometry import Polygon, LineString, LinearRing, Point
 from shapely.geometry.base import BaseGeometry
 from shapely.ops import nearest_points
+from shapely.prepared import prep
 
 from shapely_ext.geometry.vector_2d import Vector2D
 
@@ -27,13 +28,9 @@ class Projector:
             return list(geom.exterior.coords)
         return list(geom.coords)
 
-    def is_facing_point(self, point: Point, other_geom: BaseGeometry):
-        return (
-                self._geom.intersection(
-                    LineString(nearest_points(point, other_geom))
-                ).length
-                < self._eps
-        )
+    def _is_facing_point(self, point: Point, projecting_vector, geom):
+        other_point = projecting_vector.multiply(self._max_projecting_length).apply(point)
+        return geom.intersection(LineString([point, other_point])).length < self._eps
 
     def project_onto(self, other_geom: BaseGeometry):
         if isinstance(self._geom, Point):
@@ -44,7 +41,7 @@ class Projector:
         points = [Point(coord) for coord in self._get_coords(geom)]
         optional_projecting_points: List[Optional[Point]] = []
         for point in points:
-            if self.is_facing_point(point, other_geom):
+            if self._is_facing_point(point, self._projecting_vector, geom):
                 projecting_point = self.get_projection_point(point, other_geom, self._projecting_vector)
                 optional_projecting_points.append(projecting_point)
             else:
@@ -67,7 +64,7 @@ class Projector:
         for coord_of_other in other_geom_coords:
             projection_point = self.get_projection_point(Point(coord_of_other), geom, projecting_vector)
             if projection_point:
-                self._insert_into_coords(geom_coords_copy, projection_point)
+                self._insert_into_coords(geom_coords_copy, list(projection_point.coords)[0])
         return self._construct_by_coords_according_to(geom, geom_coords_copy)
 
     def _construct_by_coords_according_to(self, ref_geom, coords):
