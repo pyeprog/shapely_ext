@@ -82,3 +82,18 @@ class Vector2D:
 
     def apply(self, geom: BaseGeometry) -> BaseGeometry:
         return translate(geom, xoff=self.x, yoff=self.y)
+
+    def multiply(self, multiple: float):
+        return Vector2D(self.x * multiple, self.y * multiple)
+
+    def __mul__(self, other):
+        return self.multiply(other)
+
+    def unit(self):
+        length = math.sqrt(self.x ** 2 + self.y ** 2)
+        if length == 0:
+            raise ValueError('x and y cannot be both 0')
+        return Vector2D(self.x / length, self.y / length)
+
+    def reverse(self):
+        return Vector2D(-self.x, -self.y)
