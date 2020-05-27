@@ -1,3 +1,4 @@
+import math
 from copy import deepcopy
 from typing import Union, Optional, List, Tuple
 
@@ -101,12 +102,12 @@ class Projector:
 
     @staticmethod
     def _insert_into_coords(coords: List[Tuple[float, float]], coord: Tuple[float, float]) -> None:
-        polygon = Polygon(coords)
-        if not polygon.is_valid:
-            raise ValueError("coords is not valid")
-        point = Point(coord)
         for i in range(len(coords)):
-            buffered_line = LineString([coords[i - 1], coords[i]]).buffer(1e-6)
-            if buffered_line.intersects(point):
+            prev_coord = coords[i - 1]
+            cur_coord = coords[i]
+            origin_len = math.sqrt((prev_coord[0] - cur_coord[0]) ** 2 + (prev_coord[1] - cur_coord[1]) ** 2)
+            segment1_len = math.sqrt((prev_coord[0] - coord[0]) ** 2 + (prev_coord[1] - coord[1]) ** 2)
+            segment2_len = math.sqrt((cur_coord[0] - coord[0]) ** 2 + (cur_coord[1] - coord[1]) ** 2)
+            if abs(segment1_len + segment2_len - origin_len) < 1e-6:
                 coords.insert(i, coord)
                 break
