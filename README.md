@@ -20,3 +20,5 @@ if one of these two objects be Point, projection might be a point or None
 2. refactor space explorer
 3. implement a magic snap function
 4. implement filling util
+5. implement cutting util
+
