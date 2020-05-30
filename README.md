@@ -21,4 +21,4 @@ if one of these two objects be Point, projection might be a point or None
 3. implement a magic snap function
 4. implement filling util
 5. implement cutting util
-
+6. how to get mid line of gap between several big polygons
