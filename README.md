@@ -22,3 +22,6 @@ if one of these two objects be Point, projection might be a point or None
 4. implement filling util
 5. implement cutting util
 6. how to get mid line of gap between several big polygons
+7. add is_similar checker
+8. add flatten method
+9. add intersects checker for linestring
