@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="shapely_ext",
-    version="0.1.4",
+    version="0.1.5",
     author="pd",
     author_email="pyeprog@foxmail.com",
     description="a shapely extension package providing magic function",

@@ -5,7 +5,6 @@ from typing import Union, Optional, List, Tuple
 from shapely.geometry import Polygon, LineString, LinearRing, Point
 from shapely.geometry.base import BaseGeometry
 from shapely.ops import nearest_points
-from shapely.prepared import prep
 
 from shapely_ext.geometry.vector_2d import Vector2D
 
